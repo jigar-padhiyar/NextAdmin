@@ -1,8 +1,9 @@
 import React from "react";
-import Home from "./pages/home/home";
+import Dashboard from "./pages/dashboard/dashboard";
+import SignIn from "./pages/auth/signin/signIn";
 
 const Page = () => {
-  return <Home />;
+  return false ? <Dashboard /> : <SignIn />;
 };
 
 export default Page;
