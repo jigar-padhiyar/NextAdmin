@@ -1,6 +1,8 @@
 "use client";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google"; // Fallback to Inter or another Google Font
+// Alternatively, use the Vercel Fonts package if you have it installed
+// import { GeistSans, GeistMono } from '@vercel/fonts';
 import "./globals.css";
 import { Provider } from "react-redux";
 import { store } from "@/state/store/store";
@@ -10,15 +12,40 @@ import { useEffect, useState } from "react";
 import { setLightTheme, setDarkTheme } from "@/state/store/feature/themeSlice";
 import { useAppDispatch } from "@/state/store/hook";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Option 1: Use Inter as a fallback Google Font
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Option 2: If you have Geist font files locally, use next/font/local
+// import localFont from 'next/font/local';
+// const geistSans = localFont({
+//   src: [
+//     {
+//       path: '../path-to-your-fonts/GeistSans-Regular.woff2',
+//       weight: '400',
+//       style: 'normal',
+//     },
+//     // Add other weights as needed
+//   ],
+//   variable: '--font-geist-sans',
+// });
+//
+// const geistMono = localFont({
+//   src: [
+//     {
+//       path: '../path-to-your-fonts/GeistMono-Regular.woff2',
+//       weight: '400',
+//       style: 'normal',
+//     },
+//     // Add other weights as needed
+//   ],
+//   variable: '--font-geist-mono',
+// });
+
+// Option 3: If you have @vercel/fonts installed
+// Use the import at the top of the file
 
 export default function RootLayout({
   children,
@@ -28,7 +55,8 @@ export default function RootLayout({
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${inter.variable}`}>
+      {/* If using Vercel Fonts: className={`${GeistSans.variable} ${GeistMono.variable}`} */}
       <body>
         <AuthProvider>
           <Provider store={store}>
