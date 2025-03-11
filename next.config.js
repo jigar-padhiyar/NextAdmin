@@ -1,10 +1,5 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-  ],
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     unoptimized: true,
   },
@@ -14,13 +9,6 @@ module.exports = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ["var(--font-inter)"], // Update this based on your font choice
-        mono: ["var(--font-mono)"],
-      },
-    },
-  },
-  plugins: [],
 };
+
+module.exports = nextConfig;
