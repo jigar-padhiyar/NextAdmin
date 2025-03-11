@@ -61,7 +61,7 @@ export default function Header() {
                     className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                     role="menuitem"
                     onClick={() =>
-                      signOut({ callbackUrl: "/pages/auth/signin/signIn" })
+                      signOut({ callbackUrl: "/pages/auth/signin" })
                     }
                   >
                     Sign out

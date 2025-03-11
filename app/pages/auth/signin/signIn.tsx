@@ -98,7 +98,7 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-bg-primary-700 bg-primary-600  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 dark:text-white dark:bg-primary-600 dark:hover:bg-primary-500 dark:focus:ring-primary-500 ring-2 ring-primary-500   focus:ring-primary-500 "
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
