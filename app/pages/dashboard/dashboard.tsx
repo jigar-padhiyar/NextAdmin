@@ -12,6 +12,7 @@ export default function Dashboard() {
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectAllUsers);
   const posts = useAppSelector(selectAllPosts);
+  const savedTheme = useAppSelector((state) => state.theme.darkMode);
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -25,10 +26,14 @@ export default function Dashboard() {
       </Head>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1
+          className={`text-2xl font-bold text-gray-900 ${
+            savedTheme && "text-white"
+          }`}
+        >
           Dashboard
         </h1>
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className={`text-gray-500  ${savedTheme && "text-gray-300"} `}>
           Welcome to your admin dashboard
         </p>
       </div>

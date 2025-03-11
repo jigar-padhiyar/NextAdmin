@@ -58,9 +58,6 @@ export default function Sidebar() {
             const isActive =
               pathname === item.href || pathname?.startsWith(`${item.href}/`);
 
-            console.log("item --->", item);
-            console.log("router --->", pathname);
-
             return (
               <Link
                 key={item.name}
