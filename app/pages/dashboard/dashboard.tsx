@@ -1,13 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import Head from "next/head";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { fetchPosts, selectAllPosts } from "@/state/store/feature/postSlice";
 import { useAppDispatch, useAppSelector } from "@/state/store/hook";
 import { fetchUsers, selectAllUsers } from "@/state/store/feature/userSlice";
-import RecentActivity from "@/components/dashboard/RecentActivity";
-import DashboardCharts from "@/components/dashboard/DataChart";
+
+// Lazy load components
+const RecentActivity = lazy(
+  () => import("@/components/dashboard/RecentActivity")
+);
+const DashboardCharts = lazy(() => import("@/components/dashboard/DataChart"));
+
+// Loading fallbacks
+const ChartsSkeleton = () => (
+  <div className="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+);
+
+const ActivitySkeleton = () => (
+  <div className="w-full h-90 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+);
 
 export default function Dashboard() {
   const dispatch = useAppDispatch();
@@ -58,13 +71,18 @@ export default function Dashboard() {
         </label>
       </div>
 
-      {/* Enhanced dashboard charts */}
+      {/* Enhanced dashboard charts with lazy loading */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <DashboardCharts
-          useRandomData={useRandomData}
-          apiData={!useRandomData ? { users, posts } : undefined}
-        />
-        <RecentActivity posts={posts.slice(0, 5)} users={users.slice(0, 5)} />
+        <Suspense fallback={<ChartsSkeleton />}>
+          <DashboardCharts
+            useRandomData={useRandomData}
+            apiData={!useRandomData ? { users, posts } : undefined}
+          />
+        </Suspense>
+
+        <Suspense fallback={<ActivitySkeleton />}>
+          <RecentActivity posts={posts.slice(0, 5)} users={users.slice(0, 5)} />
+        </Suspense>
       </div>
     </DashboardLayout>
   );
