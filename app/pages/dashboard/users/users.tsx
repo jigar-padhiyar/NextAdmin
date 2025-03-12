@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import Head from "next/head";
 import { useAppDispatch, useAppSelector } from "@/state/store/hook";
 import {
@@ -8,8 +8,35 @@ import {
   selectUsersStatus,
 } from "@/state/store/feature/userSlice";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import DraggableUserList from "@/components/users/DraggableUserList";
-import Pagination from "@/components/ui/Pagination";
+
+// Lazy load components
+const DraggableUserList = lazy(
+  () => import("@/components/users/DraggableUserList")
+);
+const Pagination = lazy(() => import("@/components/ui/Pagination"));
+
+// Loading fallbacks
+const UserListSkeleton = () => (
+  <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+    <div className="p-4 animate-pulse">
+      {[...Array(5)].map((_, index) => (
+        <div key={index} className="mb-4 flex items-center pt-4">
+          <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+          <div className="ml-4 flex-1">
+            <div className="h-4 w-2/3 bg-gray-200 dark:bg-gray-600 rounded"></div>
+            <div className="h-3 w-1/2 bg-gray-200 dark:bg-gray-600 rounded mt-2"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const PaginationSkeleton = () => (
+  <div className="mt-4 flex justify-center">
+    <div className="h-8 w-64 bg-gray-200 dark:bg-gray-600 rounded"></div>
+  </div>
+);
 
 export default function UsersPage() {
   const dispatch = useAppDispatch();
@@ -45,15 +72,6 @@ export default function UsersPage() {
             Manage and organize users
           </p>
         </div>
-
-        <div className="mt-4 md:mt-0">
-          <button
-            type="button"
-            className="px-4 py-2 bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-gray-900 dark:text-white"
-          >
-            Add New User
-          </button>
-        </div>
       </div>
 
       {status === "loading" ? (
@@ -66,17 +84,21 @@ export default function UsersPage() {
         </div>
       ) : (
         <>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-            <DraggableUserList users={currentUsers} />
-          </div>
+          <Suspense fallback={<UserListSkeleton />}>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+              <DraggableUserList users={currentUsers} />
+            </div>
+          </Suspense>
 
-          <div className="mt-4">
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-            />
-          </div>
+          <Suspense fallback={<PaginationSkeleton />}>
+            <div className="mt-4">
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
+            </div>
+          </Suspense>
         </>
       )}
     </DashboardLayout>

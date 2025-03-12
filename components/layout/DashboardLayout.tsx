@@ -1,11 +1,34 @@
 "use client";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, lazy, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useAppSelector } from "@/state/store/hook";
 import { selectDarkMode } from "@/state/store/feature/themeSlice";
-import Sidebar from "./sidebar";
 import { useRouter } from "next/navigation";
-import Header from "./header";
+
+// Lazy load components
+const Sidebar = lazy(() => import("./sidebar"));
+const Header = lazy(() => import("./header"));
+
+// Loading fallbacks
+const HeaderSkeleton = () => (
+  <div className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 w-full animate-pulse"></div>
+);
+
+const SidebarSkeleton = () => (
+  <div className="w-64 hidden md:block bg-white dark:bg-gray-800 h-full border-r border-gray-200 dark:border-gray-700 animate-pulse">
+    <div className="p-4">
+      <div className="h-8 w-3/4 bg-gray-200 dark:bg-gray-700 rounded mb-6"></div>
+      <div className="space-y-4">
+        {[...Array(8)].map((_, index) => (
+          <div
+            key={index}
+            className="h-6 w-full bg-gray-200 dark:bg-gray-700 rounded"
+          ></div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -35,9 +58,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
-        <Header />
+        <Suspense fallback={<HeaderSkeleton />}>
+          <Header />
+        </Suspense>
         <div className="flex flex-1">
-          <Sidebar />
+          <Suspense fallback={<SidebarSkeleton />}>
+            <Sidebar />
+          </Suspense>
           <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
         </div>
       </div>
