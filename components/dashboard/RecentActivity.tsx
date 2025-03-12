@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { Post } from "@/state/store/feature/postSlice";
-import { User } from "next-auth";
+import { User } from "@/state/store/feature/userSlice";
 
 interface RecentActivityProps {
   posts: Post[];
@@ -16,8 +16,7 @@ export default function RecentActivity({ posts, users }: RecentActivityProps) {
       type: "post",
       title: post.title,
       user:
-        users.find((user) => user.id === post.userId.toString())?.name ||
-        "Unknown user",
+        users.find((user) => user.id === post.userId)?.name || "Unknown user",
       time: "2 hours ago", // Mock data since JSONPlaceholder doesn't provide timestamps
     }));
 
