@@ -178,18 +178,18 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
       </div>
 
       {/* Metrics Cards with Change Indicators */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {metricsData.map((metric, index) => (
           <div
             key={index}
-            className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg shadow-sm"
+            className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-5 rounded-lg shadow-sm transition-all hover:shadow-md"
           >
             <div className="flex justify-between items-start">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              <h3 className="text-sm sm:text-base font-medium text-gray-500 dark:text-gray-400 truncate mr-2">
                 {metric.name}
               </h3>
               <span
-                className={`text-xs font-medium px-2 py-1 rounded-full ${
+                className={`text-xs whitespace-nowrap font-medium px-2 py-1 rounded-full ${
                   metric.changeType === "increase"
                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                     : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
@@ -199,7 +199,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
               </span>
             </div>
             <p
-              className="mt-2 text-2xl font-semibold"
+              className="mt-2 text-xl sm:text-2xl font-semibold"
               style={{ color: metric.color }}
             >
               {metric.name === "API Response"
@@ -208,7 +208,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
             </p>
             <div className="mt-2 w-full h-1 bg-gray-200 dark:bg-gray-700 rounded">
               <div
-                className="h-full rounded"
+                className="h-full rounded transition-all duration-300"
                 style={{
                   width: `${Math.min(
                     100,

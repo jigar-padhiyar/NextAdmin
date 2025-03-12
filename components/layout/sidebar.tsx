@@ -55,8 +55,10 @@ export default function Sidebar() {
 
         <nav className="space-y-1">
           {navigation.map((item) => {
+            const getLastSegment = (path: string) =>
+              path.split("/").filter(Boolean).pop();
             const isActive =
-              pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              getLastSegment(pathname) === getLastSegment(item.href);
 
             return (
               <Link
