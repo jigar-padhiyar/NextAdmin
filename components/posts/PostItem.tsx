@@ -14,14 +14,6 @@ export default function PostItem({ post, author }: PostItemProps) {
         <h3 className="text-lg font-medium text-gray-900 dark:text-white line-clamp-1">
           {post.title}
         </h3>
-        <div className="flex space-x-2">
-          <button className="text-primary-600 hover:text-primary-800 dark:text-primary-400 text-sm font-medium">
-            Edit
-          </button>
-          <button className="text-red-600 hover:text-red-800 dark:text-red-400 text-sm font-medium">
-            Delete
-          </button>
-        </div>
       </div>
 
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
