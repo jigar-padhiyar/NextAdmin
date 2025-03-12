@@ -25,9 +25,9 @@ export default function Header() {
               <div>
                 <button
                   type="button"
-                  className="flex text-sm rounded-full dark:border-white border-gray-700  outline-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="flex text-sm rounded-full border border-gray-300 dark:border-gray-600 outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                   id="user-menu"
-                  aria-expanded="false"
+                  aria-expanded={showProfileMenu}
                   aria-haspopup="true"
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                 >
@@ -57,15 +57,15 @@ export default function Header() {
                   >
                     {session?.user?.email || "admin@example.com"}
                   </div>
-                  <div
-                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     role="menuitem"
                     onClick={() =>
                       signOut({ callbackUrl: "/pages/auth/signin" })
                     }
                   >
                     Sign out
-                  </div>
+                  </button>
                 </div>
               )}
             </div>
