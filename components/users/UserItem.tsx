@@ -49,14 +49,6 @@ export default function UserItem({ user }: UserItemProps) {
       <td className="px-6 py-4 whitespace-nowrap text-sm text-primary-600 dark:text-primary-400">
         {user.website}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <button className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
-          Edit
-        </button>
-        <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
-          Delete
-        </button>
-      </td>
     </tr>
   );
 }
