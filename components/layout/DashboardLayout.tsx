@@ -19,7 +19,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   useEffect(() => {
     // If not authenticated, redirect to login
     if (status === "unauthenticated") {
-      router.push("/pages/auth/signin/signIn");
+      router.push("/pages/auth/signin");
     }
   }, [status, router]);
 

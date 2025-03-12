@@ -25,14 +25,14 @@ export default function Header() {
               <div>
                 <button
                   type="button"
-                  className="flex text-sm rounded-full dark:border-white border-gray-700 ring-gray-900 ring-2 outline-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"
+                  className="flex text-sm rounded-full dark:border-white border-gray-700  outline-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                   id="user-menu"
                   aria-expanded="false"
                   aria-haspopup="true"
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                 >
                   <span className="sr-only">Open user menu</span>
-                  <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center dark:text-white text-gray-700">
+                  <div className="h-10 w-10 rounded-full bg-primary-500 flex items-center justify-center text-white">
                     {session?.user?.name?.charAt(0) || "A"}
                   </div>
                 </button>
