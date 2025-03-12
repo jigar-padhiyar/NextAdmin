@@ -1,83 +1,79 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function SignIn() {
+export default function Register() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // Check if user just registered
-    const registered = searchParams.get("registered");
-    if (registered === "true") {
-      setSuccess("Account created successfully! Please sign in.");
-    }
-
-    // Check for errors
-    const errorMessage = searchParams.get("error");
-    if (errorMessage) {
-      switch (errorMessage) {
-        case "OAuthSignin":
-        case "OAuthCallback":
-        case "OAuthCreateAccount":
-        case "EmailCreateAccount":
-        case "Callback":
-          setError("There was an error with the OAuth sign in");
-          break;
-        case "OAuthAccountNotLinked":
-          setError("This email is already associated with another account");
-          break;
-        case "EmailSignin":
-          setError("Error sending the email");
-          break;
-        case "CredentialsSignin":
-          setError("Invalid email or password");
-          break;
-        default:
-          setError("An error occurred during sign in");
-          break;
-      }
-    }
-  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess("");
+
+    // Basic validation
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
 
     try {
-      const result = await signIn("credentials", {
+      // Make sure the endpoint matches exactly where your API route is located
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      // Check for non-JSON responses
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error(
+          `Server returned unexpected format: ${await response.text()}`
+        );
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to register");
+      }
+
+      console.log("Registration successful:", data);
+
+      // After successful registration, redirect to sign in
+      await signIn("credentials", {
         redirect: false,
         email,
         password,
       });
 
-      if (result?.error) {
-        setError("Invalid email or password");
-        console.error("Auth error:", result.error);
-      } else if (result?.ok) {
-        router.push("/pages/dashboard");
-        router.refresh(); // Force a refresh to update auth state
-      }
+      router.push("/pages/dashboard");
     } catch (err) {
-      console.error("Login error:", err);
-      setError("An error occurred during sign in");
+      console.error("Registration error:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred during registration"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGitHubSignIn = () => {
+  const handleGitHubSignUp = () => {
     setLoading(true);
-    signIn("github", { callbackUrl: "/pages/dashboard" });
+    signIn("github", { callbackUrl: "/dashboard" });
   };
 
   return (
@@ -85,15 +81,15 @@ export default function SignIn() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Sign in to your account
+            Create an account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Or{" "}
             <Link
-              href="/pages/auth/register"
+              href="/pages/auth/signin"
               className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
             >
-              create a new account
+              sign in to your existing account
             </Link>
           </p>
         </div>
@@ -107,17 +103,24 @@ export default function SignIn() {
           </div>
         )}
 
-        {success && (
-          <div
-            className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
-            role="alert"
-          >
-            <span className="block sm:inline">{success}</span>
-          </div>
-        )}
-
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="name" className="sr-only">
+                Full Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                placeholder="Full Name"
+              />
+            </div>
             <div>
               <label htmlFor="email-address" className="sr-only">
                 Email address
@@ -130,7 +133,7 @@ export default function SignIn() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                 placeholder="Email address"
               />
             </div>
@@ -142,30 +145,29 @@ export default function SignIn() {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                 placeholder="Password"
               />
             </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded dark:border-gray-700"
-              />
-              <label
-                htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
-              >
-                Remember me
+            <div>
+              <label htmlFor="confirm-password" className="sr-only">
+                Confirm Password
               </label>
+              <input
+                id="confirm-password"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                placeholder="Confirm Password"
+              />
             </div>
           </div>
 
@@ -175,7 +177,7 @@ export default function SignIn() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 dark:bg-primary-700 dark:hover:bg-primary-800"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "Creating account..." : "Sign up"}
             </button>
 
             <div className="relative flex py-3 items-center">
@@ -188,7 +190,7 @@ export default function SignIn() {
 
             <button
               type="button"
-              onClick={handleGitHubSignIn}
+              onClick={handleGitHubSignUp}
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700"
             >
@@ -201,7 +203,7 @@ export default function SignIn() {
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.12.83-.26.83-.57v-2c-3.34.73-4.03-1.6-4.03-1.6-.55-1.4-1.34-1.77-1.34-1.77-1.08-.74.08-.72.08-.72 1.2.08 1.84 1.23 1.84 1.23 1.07 1.84 2.8 1.3 3.48 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.3.47-2.38 1.23-3.22-.14-.3-.53-1.52.1-3.17 0 0 1-.32 3.3 1.23.96-.26 1.98-.4 3-.4s2.04.14 3 .4c2.28-1.55 3.28-1.23 3.28-1.23.63 1.65.24 2.87.12 3.17.76.84 1.23 1.92 1.23 3.22 0 4.6-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.2v3.3c0 .31.22.7.83.57C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z" />
                 </svg>
               </span>
-              Sign in with GitHub
+              Sign up with GitHub
             </button>
           </div>
         </form>
