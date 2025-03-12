@@ -1,6 +1,7 @@
 # Admin Dashboard
 
 ## Table of Contents
+
 - [Introduction](#introduction)
 - [Features](#features)
 - [Installation](#installation)
@@ -10,15 +11,16 @@
 - [Contact](#contact)
 
 ## Introduction
+
 The Admin Dashboard is a web application designed to provide administrators with a comprehensive interface to manage and monitor various aspects of their system. It includes features such as user management, analytics, and reporting.
 
 ## Features
+
 - User Management: Add, edit, and delete users.
 - Analytics: View real-time data and statistics.
 - Reporting: Generate and export reports.a# Admin Dashboard
 
 A responsive, optimized, and feature-rich admin dashboard built with Next.js, Tailwind CSS, and Redux Toolkit. This project includes API integration, state management, and data visualization.
-
 
 ## 🚀 Features
 
@@ -28,7 +30,7 @@ A responsive, optimized, and feature-rich admin dashboard built with Next.js, Ta
 - **API Integration** - Fetch and display real user and post data
 - **State Management** - Global state with Redux Toolkit
 - **User Management** - View and manage user data with pagination
-- **Post Management** - View and manage post data 
+- **Post Management** - View and manage post data
 - **Performance Optimized** - Code splitting and lazy loading
 - **Mobile Responsive** - Fully responsive on all device sizes
 - **TypeScript Integration** - Type-safe development experience
@@ -50,7 +52,7 @@ A responsive, optimized, and feature-rich admin dashboard built with Next.js, Ta
 
 ```bash
 git clone https://github.com/jigar-padhiyar/NextAdmin.git
-cd admin-dashboard
+cd NextAdmin
 ```
 
 2. **Install dependencies**
@@ -59,7 +61,7 @@ cd admin-dashboard
 npm install
 ```
 
-or if any conflicts occurs 
+or if any conflicts occurs
 
 ```bash
 npm install --legacy-peer-deps
@@ -86,7 +88,7 @@ npm start
 ## 📊 Project Structure
 
 ```
-admin-dashboard/
+NextAdmin/
 ├── next/                 # Next.js configuration files
 ├── .vercel/              # Vercel deployment configuration
 ├── app/                  # Main application directory
@@ -94,9 +96,9 @@ admin-dashboard/
 ├── routes.ts             # Application routes configuration
 ├── pages/                # Application pages
 │   ├── auth/             # Authentication related pages
-│   │   ├── signin/       # Sign-in page
-│   │   │   └── page.tsx  # Sign-in page component
-│   │   └── signin.tsx    # Sign-in component
+│   │   └── signin/       # Sign-in page
+│   │       ├── page.tsx  # Sign-in page component
+│   │       └──signin.tsx    # Sign-in component
 │   ├── dashboard/        # Dashboard pages
 │   │   ├── users/        # User management page
 │   │   ├── dashboard.tsx # Main dashboard component
@@ -159,6 +161,7 @@ The dashboard provides real-time visualization of key metrics:
 - Additionally for UI check implemented a switch which toggle the data for data chart should be from API or math random which will update on every 3 seconds
 
 The metrics can be displayed using either:
+
 - Simulated data (with random variations over time)
 - Real API data from the JSONPlaceholder API
 
@@ -235,32 +238,36 @@ Visit the live demo: [Admin Dashboard Demo](https://next-admin-dashboard-puce.ve
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
 - Responsive Design: Works on both desktop and mobile devices.
 
 ## Installation
+
 To get a local copy up and running, follow these simple steps:
 
 1. Clone the repository:
-    ```bash
-    git clone https://github.com/jigar-padhiyar/NextAdmin.git
-    ```
+   ```bash
+   git clone https://github.com/jigar-padhiyar/NextAdmin.git
+   ```
 2. Navigate to the project directory:
-    ```bash
-    cd admin-dashboard
-    ```
+   ```bash
+   cd NextAdmin
+   ```
 3. Install dependencies:
-    ```bash
-    npm install or npm install --legacy-peer-deps if any issue or conflicts in installing node modules
-    ```
+   ```bash
+   npm install or npm install --legacy-peer-deps if any issue or conflicts in installing node modules
+   ```
 4. Start the development server:
-    ```bash
-    npm start
-    ```
+   ```bash
+   npm start
+   ```
 
 ## Usage
+
 Once the server is running, you can access the application at `http://localhost:3000`. Use the dashboard to manage users, view analytics, and generate reports.
 
 ## Contributing
+
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 1. Fork the Project
@@ -270,9 +277,11 @@ Contributions are what make the open-source community such an amazing place to l
 5. Open a Pull Request
 
 ## License
+
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
+
 Jigar Padhiyar - [jigar.padhiyar@techsierra.in]
 
-Project Link: [https://github.com/your-username/admin-dashboard](https://github.com/jigar-padhiyar/NextAdmin.git)
+Project Link: [https://github.com/jigar-padhiyar/NextAdmin.git]
