@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import Dashboard from "./pages/dashboard/dashboard";
 import SignIn from "./pages/auth/signin/signIn";
 import { useSession } from "next-auth/react";
