@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import { store } from "@/state/store/store";
 import AuthProvider from "@/context/authProvider";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ThemeProvider } from "@/ThemeProvider";
 
 // Inter font setup
