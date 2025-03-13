@@ -5,7 +5,9 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    window.innerWidth >= 640 ? false : true
+  );
   const pathname = usePathname();
   const { data: session } = useSession();
 
@@ -13,14 +15,13 @@ export default function Sidebar() {
     { name: "Dashboard", href: "/pages/dashboard", icon: "📊" },
     { name: "Users", href: "/pages/dashboard/users", icon: "👥" },
     { name: "Posts", href: "/pages/posts", icon: "📝" },
-    // { name: "Settings", href: "/settings", icon: "⚙️" },
   ];
 
   return (
     <aside
       className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${
         collapsed ? "w-16" : "w-64"
-      }`}
+      } max-sm:fixed max-sm:h-full max-sm:z-10 max-sm:mt-16`}
     >
       <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
         {!collapsed && (
