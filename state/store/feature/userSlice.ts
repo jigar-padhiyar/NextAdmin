@@ -1,6 +1,6 @@
 "use client";
 
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 
 export interface User {
@@ -48,7 +48,8 @@ export const usersSlice = createSlice({
   name: 'users',
   initialState,
   reducers: {
-    reorderUsers: (state, action) => {
+    // Simply replace the entire users array with the reordered version
+    reorderUsers: (state, action: PayloadAction<User[]>) => {
       state.users = action.payload;
     },
   },

@@ -52,8 +52,8 @@ export default function UsersPage() {
   }, [status, dispatch]);
 
   // Get current page users
-  const indexOfLastUser = page * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const indexOfFirstUser = (page - 1) * usersPerPage;
+  const indexOfLastUser = indexOfFirstUser + usersPerPage;
   const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(users.length / usersPerPage);
 
@@ -86,7 +86,10 @@ export default function UsersPage() {
         <>
           <Suspense fallback={<UserListSkeleton />}>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
-              <DraggableUserList users={currentUsers} />
+              <DraggableUserList
+                users={currentUsers}
+                startIndex={indexOfFirstUser} // Pass the start index
+              />
             </div>
           </Suspense>
 
