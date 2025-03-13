@@ -9,7 +9,6 @@ import {
   DragEndEvent,
   TouchSensor,
   MouseSensor,
-  defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -17,18 +16,23 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAppDispatch } from "@/state/store/hook";
-import { reorderUsers } from "@/state/store/feature/userSlice";
+import { useAppDispatch, useAppSelector } from "@/state/store/hook";
+import { reorderUsers, selectAllUsers } from "@/state/store/feature/userSlice";
 import { User } from "@/state/store/feature/userSlice";
 import UserItem from "./UserItem";
 
 interface DraggableUserListProps {
   users: User[];
+  startIndex: number;
 }
 
-export default function DraggableUserList({ users }: DraggableUserListProps) {
+export default function DraggableUserList({
+  users,
+  startIndex,
+}: DraggableUserListProps) {
   const [items, setItems] = useState(users);
   const dispatch = useAppDispatch();
+  const allUsers = useAppSelector(selectAllUsers);
 
   useEffect(() => {
     if (JSON.stringify(users) !== JSON.stringify(items)) {
@@ -36,45 +40,35 @@ export default function DraggableUserList({ users }: DraggableUserListProps) {
     }
   }, [users, items]);
 
-  // Detect if we're on a touch device (most likely Android)
+  // Device detection
   const isTouchDevice =
     typeof window !== "undefined" &&
     ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
-  // Detect iOS specifically
   const isIOS =
     typeof navigator !== "undefined" &&
     /iPad|iPhone|iPod/.test(navigator.userAgent) &&
     !(window as any).MSStream;
 
-  // Configure sensors based on device type
+  // Configure sensors
   const sensors = useSensors(
-    // Use MouseSensor for non-touch environments
     useSensor(MouseSensor, {
-      // Prevent accidental drag with a small distance constraint
       activationConstraint: {
         distance: 10,
       },
     }),
-    // Optimized TouchSensor configuration with higher constraints for iOS
     useSensor(TouchSensor, {
-      // Important: Increase delay on iOS to allow scrolling to work properly
       activationConstraint: {
-        // Use different constraints for iOS vs Android
         delay: isIOS ? 300 : 200,
-        // More tolerance on iOS to better distinguish scrolling from dragging
         tolerance: isIOS ? 15 : 8,
-        // Add distance constraint for iOS to further improve scroll detection
         distance: isIOS ? 15 : undefined,
       },
     }),
-    // Keep PointerSensor with larger distance constraint to distinguish from scrolling
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: isIOS ? 15 : 10,
       },
     }),
-    // Keep keyboard navigation support
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -83,21 +77,34 @@ export default function DraggableUserList({ users }: DraggableUserListProps) {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
-    if (over && active.id !== over.id) {
-      setItems((currentItems) => {
-        const oldIndex = currentItems.findIndex(
-          (user) => user.id === active.id
-        );
-        const newIndex = currentItems.findIndex((user) => user.id === over.id);
+    if (!over || active.id === over.id) return;
 
-        const newItems = arrayMove(currentItems, oldIndex, newIndex);
+    // Find the IDs of the dragged item and the target position
+    const draggedId = Number(active.id);
+    const overId = Number(over.id);
 
-        // Update the global state
-        dispatch(reorderUsers(newItems));
+    // Find positions in the current page items
+    const localDraggedIndex = items.findIndex((item) => item.id === draggedId);
+    const localOverIndex = items.findIndex((item) => item.id === overId);
 
-        return newItems;
-      });
-    }
+    // Update local state for immediate UI feedback
+    setItems((prevItems) =>
+      arrayMove(prevItems, localDraggedIndex, localOverIndex)
+    );
+
+    // Find positions in the global user list
+    const globalDraggedIndex = allUsers.findIndex(
+      (user) => user.id === draggedId
+    );
+    const globalOverIndex = allUsers.findIndex((user) => user.id === overId);
+
+    // Create a copy of all users and perform the move in the full list
+    const newUsers = [...allUsers];
+    const [movedUser] = newUsers.splice(globalDraggedIndex, 1);
+    newUsers.splice(globalOverIndex, 0, movedUser);
+
+    // Update the Redux store with the complete reordered array
+    dispatch(reorderUsers(newUsers));
   }
 
   return (
@@ -127,7 +134,6 @@ export default function DraggableUserList({ users }: DraggableUserListProps) {
               `Cancelled dragging user ${active.id}`,
           },
         }}
-        modifiers={[]}
       >
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
