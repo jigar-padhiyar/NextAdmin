@@ -65,7 +65,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <Suspense fallback={<SidebarSkeleton />}>
             <Sidebar />
           </Suspense>
-          <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
+          <main className="flex-1 p-4 md:p-6 overflow-auto max-sm:pl-20 max-sm:mt-16">
+            {children}
+          </main>
         </div>
       </div>
     </div>

@@ -1,10 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SignIn() {
+// Create a component that uses useSearchParams inside a Suspense boundary
+function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -207,5 +208,27 @@ export default function SignIn() {
         </form>
       </div>
     </div>
+  );
+}
+
+// Create a loading fallback for the Suspense boundary
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="text-center">
+        <p className="text-lg text-gray-700 dark:text-gray-300">
+          Loading sign-in page...
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Main component that wraps the content with Suspense
+export default function SignIn() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <SignInContent />
+    </Suspense>
   );
 }
