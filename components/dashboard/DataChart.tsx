@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ReferenceLine,
-  Cell,
+  Sector,
 } from "recharts";
 
 interface MetricData {
@@ -158,11 +155,68 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
     return () => clearInterval(interval);
   }, [useRandomData]);
 
-  // Calculate percentage of limit for each metric
-  const normalizedData = metricsData.map((metric) => ({
-    ...metric,
-    percentage: (metric.value / metric.limit) * 100,
-  }));
+  // Prepare data for the combined pie chart
+  // Normalize data for the pie chart
+  const getCombinedPieData = () => {
+    return metricsData.map((metric) => {
+      // For API Response, use percentage of limit, inverted (lower is better)
+      const normalizedValue =
+        metric.name === "API Response"
+          ? (1 - metric.value / metric.limit) * 100
+          : (metric.value / metric.limit) * 100;
+
+      return {
+        name: metric.name,
+        value: normalizedValue,
+        color: metric.color,
+        rawValue: metric.value,
+        unit: metric.unit,
+        change: metric.change,
+        changeType: metric.changeType,
+        limit: metric.limit,
+      };
+    });
+  };
+
+  // Active sector state for pie chart hover
+  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
+
+  // Custom active shape for pie chart sectors
+  const renderActiveShape = (props: any) => {
+    const {
+      cx,
+      cy,
+      innerRadius,
+      outerRadius,
+      startAngle,
+      endAngle,
+      fill,
+      payload,
+    } = props;
+
+    return (
+      <g>
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius + 6}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+        />
+        <Sector
+          cx={cx}
+          cy={cy}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          innerRadius={outerRadius + 6}
+          outerRadius={outerRadius + 10}
+          fill={fill}
+        />
+      </g>
+    );
+  };
 
   return (
     <div className="w-full bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
@@ -225,80 +279,125 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
         ))}
       </div>
 
-      {/* Combined Bar Chart */}
+      {/* Combined Pie Chart */}
       <div className="mt-6">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
-          Combined Metrics
+          Metrics Performance
         </h3>
-        <div className="h-96">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={normalizedData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-              <XAxis dataKey="name" tick={{ fill: "#6B7280" }} />
-              <YAxis
-                tick={{ fill: "#6B7280" }}
-                label={{
-                  value: "Percentage of Limit (%)",
-                  angle: -90,
-                  position: "insideBottomLeft",
-                  fill: "#6B7280",
-                }}
-              />
-              <Tooltip
-                formatter={(value, name, props) => {
-                  const metric = metricsData.find(
-                    (m) => m.name === props.payload.name
-                  );
-                  return [
-                    metric
-                      ? `${metric.value}${metric.unit} (${Number(value).toFixed(
-                          0
-                        )}%)`
-                      : "",
-                    `${props.payload.name} ${metric ? metric.change : ""} ${
-                      metric && metric.changeType === "increase" ? "↑" : "↓"
-                    }`,
-                  ];
-                }}
-                contentStyle={{
-                  backgroundColor: "#1F2937",
-                  border: "none",
-                  borderRadius: "0.375rem",
-                  color: "#F3F4F6",
-                }}
-              />
-              <Legend />
-              <ReferenceLine y={100} stroke="#EF4444" strokeDasharray="3 3" />
-              <Bar
-                dataKey="percentage"
-                name="Current Value"
-                radius={[4, 4, 0, 0]}
-              >
-                {normalizedData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="flex flex-col ">
+          <div className="w-full">
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={getCombinedPieData()}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={110}
+                    paddingAngle={2}
+                    dataKey="value"
+                    activeIndex={activeIndex}
+                    activeShape={renderActiveShape}
+                    onMouseEnter={(_, index) => setActiveIndex(index)}
+                    onMouseLeave={() => setActiveIndex(undefined)}
+                  >
+                    {getCombinedPieData().map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name, props) => {
+                      const metric = metricsData.find((m) => m.name === name);
+                      if (!metric) return [value, name];
+
+                      const displayValue =
+                        metric.name === "API Response"
+                          ? `${metric.value.toFixed(2)}${metric.unit} (${(
+                              100 - Number(value)
+                            ).toFixed(1)}% of limit)`
+                          : `${metric.value}${metric.unit} (${Number(
+                              value
+                            ).toFixed(1)}% of limit)`;
+
+                      return [displayValue, name];
+                    }}
+                    contentStyle={{
+                      backgroundColor: "#1F2937",
+                      border: "none",
+                      borderRadius: "0.375rem",
+                      color: "#F3F4F6",
+                    }}
+                  />
+                  <Legend
+                    formatter={(value) => {
+                      const metric = metricsData.find((m) => m.name === value);
+                      return metric
+                        ? `${value} ${metric.change} ${
+                            metric.changeType === "increase" ? "↑" : "↓"
+                          }`
+                        : value;
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          <div className="w-full p-6">
+            <h4 className="text-base font-medium text-gray-700 dark:text-gray-300 mb-4">
+              Performance Summary
+            </h4>
+            <ul className="space-y-3">
+              {metricsData.map((metric, index) => (
+                <li key={index} className="flex items-center">
+                  <div
+                    className="w-3 h-3 rounded-full mr-2"
+                    style={{ backgroundColor: metric.color }}
+                  ></div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                      {metric.name}:
+                    </span>
+                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                      {metric.name === "API Response"
+                        ? `${Math.round(
+                            (1 - metric.value / metric.limit) * 100
+                          )}% efficiency`
+                        : `${Math.round(
+                            (metric.value / metric.limit) * 100
+                          )}% utilization`}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Note:
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                This chart displays normalized metrics performance. For API
+                Response, higher values are better (faster response times). For
+                Users and Posts, higher values indicate higher resource
+                utilization.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Additional context */}
-      <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+      <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
         <p>
-          * Bar chart shows each metric as a percentage of its defined limit
+          * Pie chart compares the performance of all metrics in a normalized
+          form
         </p>
         <p>
-          * API Response target: under 2s, Users capacity: 100, Posts capacity:
-          300
+          * API Response target: under 2s (inverted for comparison - higher pie
+          segment means better performance)
         </p>
-        <p>
-          * ↑ indicates improvement, ↓ indicates decline (for API Response,
-          lower is better)
-        </p>
+        <p>* Users capacity: 100, Posts capacity: 300</p>
+        <p>* ↑ indicates improvement, ↓ indicates decline</p>
       </div>
     </div>
   );

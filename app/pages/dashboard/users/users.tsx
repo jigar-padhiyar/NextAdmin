@@ -38,12 +38,55 @@ const PaginationSkeleton = () => (
   </div>
 );
 
+const CompanyFilter = ({
+  companies,
+  value,
+  onChange,
+}: {
+  companies: string[];
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}) => {
+  return (
+    <div className="relative w-full sm:w-64 lg:w-72">
+      <label
+        htmlFor="companyFilter"
+        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+      >
+        Filter by Company
+      </label>
+      <div className="relative">
+        <select
+          id="companyFilter"
+          value={value}
+          onChange={onChange}
+          className="block w-full pl-3 pr-10 py-2.5 text-base border border-gray-300 bg-white dark:bg-gray-800 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors duration-200 ease-in-out dark:border-gray-600 dark:text-white appearance-none"
+        >
+          {companies.map((company: string) => (
+            <option
+              key={company}
+              value={company}
+              className="py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              {company === "all" ? "All Companies" : company}
+            </option>
+          ))}
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300 rotate-90">
+          {">"}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function UsersPage() {
   const dispatch = useAppDispatch();
   const users = useAppSelector(selectAllUsers);
   const status = useAppSelector(selectUsersStatus);
   const [page, setPage] = useState(1);
   const [usersPerPage] = useState(5);
+  const [companyFilter, setCompanyFilter] = useState("all");
 
   useEffect(() => {
     if (status === "idle") {
@@ -51,11 +94,36 @@ export default function UsersPage() {
     }
   }, [status, dispatch]);
 
+  // Get unique companies from users
+  const companies =
+    users.length > 0
+      ? [
+          "all",
+          ...new Set(users.map((user) => user.company?.name || "Unknown")),
+        ]
+      : ["all"];
+
+  // Filter users by company
+  const filteredUsers =
+    companyFilter === "all"
+      ? users
+      : users.filter((user) => user.company?.name === companyFilter);
+
   // Get current page users
   const indexOfFirstUser = (page - 1) * usersPerPage;
   const indexOfLastUser = indexOfFirstUser + usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.ceil(users.length / usersPerPage);
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  // Reset to first page when filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [companyFilter]);
+
+  // Handler for company filter change
+  const handleCompanyChange = (e) => {
+    setCompanyFilter(e.target.value);
+  };
 
   return (
     <DashboardLayout>
@@ -63,8 +131,9 @@ export default function UsersPage() {
         <title>Users | Admin Panel</title>
       </Head>
 
-      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
-        <div>
+      {/* Header and filters section */}
+      <div className="mb-6 space-y-4 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:justify-between gap-4">
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Users
           </h1>
@@ -72,10 +141,18 @@ export default function UsersPage() {
             Manage and organize users
           </p>
         </div>
+
+        {/* Company Filter */}
+        <CompanyFilter
+          companies={companies}
+          value={companyFilter}
+          onChange={handleCompanyChange}
+        />
       </div>
 
+      {/* Content section */}
       {status === "loading" ? (
-        <div className="flex justify-center">
+        <div className="flex justify-center p-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
         </div>
       ) : status === "failed" ? (
@@ -88,20 +165,22 @@ export default function UsersPage() {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
               <DraggableUserList
                 users={currentUsers}
-                startIndex={indexOfFirstUser} // Pass the start index
+                startIndex={indexOfFirstUser}
               />
             </div>
           </Suspense>
 
-          <Suspense fallback={<PaginationSkeleton />}>
-            <div className="mt-4">
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
-              />
-            </div>
-          </Suspense>
+          {filteredUsers.length > 0 && (
+            <Suspense fallback={<PaginationSkeleton />}>
+              <div className="mt-4">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                />
+              </div>
+            </Suspense>
+          )}
         </>
       )}
     </DashboardLayout>
